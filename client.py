@@ -1,0 +1,97 @@
+"""Client for interacting with the Ollama language model."""
+from ollama import chat, ChatResponse
+
+MODEL_NAME="gemma3n:e2b"
+
+def check_model(model:str=MODEL_NAME) -> bool:
+    '''Checks if the specified language model is available and accessible.'''
+    try:
+        chat(model)
+    except Exception as e:
+        # Translated: "Error: {e}"
+        print(f"Error: {e}")
+        return False
+    return True
+
+SYSTEM_PROMPT="""You are a code-generation assistant. Your task is to respond only with code, matching exactly what the user describes.
+Do not add any explanation, comments, greetings, or formatting outside of the code block.
+Assume the user is a developer.
+Always generate complete, correct, and minimal working code in the appropriate language.
+Stick strictly to the instructions. If unclear, make reasonable assumptions and produce working code.
+Do not include tests or test code unless explicitly asked."""
+
+example=[
+  {
+    "role": "user",
+    "content": "Write a Python function that takes a list of numbers and returns the average."
+  },
+  {
+    "role": "assistant",
+    "content": "def average(numbers):\n    return sum(numbers) / len(numbers)"
+  },
+  {
+    "role": "user",
+    "content": "Create a Python class representing a Circle with a method to compute its area."
+  },
+  {
+    "role": "assistant",
+    "content": "import math\n\nclass Circle:\n    def __init__(self, radius):\n        self.radius = radius\n\n    def area(self):\n        return math.pi * self.radius ** 2"
+  },
+  {
+    "role": "user",
+    "content": "Write a JavaScript function that checks if a string is a palindrome."
+  },
+  {
+    "role": "assistant",
+    "content": "function isPalindrome(str) {\n  const reversed = str.split('').reverse().join('');\n  return str === reversed;\n}"
+  },
+  {
+    "role": "user",
+    "content": "Write a Python function that reads a file and prints its contents line by line."
+  },
+  {
+    "role": "assistant",
+    "content": "def read_file(path):\n    with open(path, 'r') as f:\n        for line in f:\n            print(line, end='')"
+  },
+  {
+    "role": "user",
+    "content": "Implement a factorial function in Python using recursion."
+  },
+  {
+    "role": "assistant",
+    "content": "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)"
+  },
+  {
+    "role": "user",
+    "content": "Create a function in C that returns the maximum of two integers."
+  },
+  {
+    "role": "assistant",
+    "content": "int max(int a, int b) {\n    return (a > b) ? a : b;\n}"
+  },
+  {
+    "role": "user",
+    "content": "Write a Python decorator that logs the execution time of a function."
+  },
+  {
+    "role": "assistant",
+    "content": "import time\n\ndef timing_decorator(func):\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        end = time.time()\n        print(f\"Execution time: {end - start:.4f} seconds\")\n        return result\n    return wrapper"
+  },
+  {
+    "role": "user",
+    "content": "Write a simple SQL query to get all users older than 30."
+  },
+  {
+    "role": "assistant",
+    "content": "SELECT * FROM users WHERE age > 30;"
+  }
+]
+
+
+def code_from_model(promt:str,history:list=[*example],sstm:str=SYSTEM_PROMPT,model:str=MODEL_NAME)->str:
+    '''Sends prompt to model and streams back code.'''
+    resp:ChatResponse=chat(model=model,messages=history+
+              [{"role":"system","content":sstm}]+
+              [{"role":"user","content":promt}],
+              stream=True)
+    return resp
