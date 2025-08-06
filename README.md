@@ -26,7 +26,7 @@ ollama serve
 ```
 ### Run the Project:
 Start the application by running the main.py file:
-``` python
+``` bash
 python main.py
 ```
 ## Usage
