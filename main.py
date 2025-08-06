@@ -170,6 +170,7 @@ def main():
                 continue 
             elif action == "cancel":
                 print(Fore.RED + "Quitting.")
+            else:
                 return 
                 edit_instruction = action 
                 
